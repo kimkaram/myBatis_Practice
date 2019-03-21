@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="memberMapper">
+
+	<resultMap id="resultMember" type="Member">
+		<id property="userId" column="userid" ></id>
+		<result property="userPwd" column="userpwd" />
+		<result property="userName" column="username" />
+		<result property="gender" column="gender" />
+		<result property="age" column="age" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="hobby" column="hobby" />
+		<result property="etc" column="etc" />
+		<result property="enrollDate" column="enroll_date" />
+		<result property="lastModified" column="lastmodified" />
+	</resultMap>
+	
+	<select id="loginCheck" parameterType="Member" resultType="Member" resultMap="resultMember">
+		select * from member where userid = #{userId} and userpwd = #{userPwd}
+	</select>
+	
+	<select id="selectMember" parameterType="string" resultMap="resultMember">
+		select * from member where userid = #{userId}
+	</select>
+	
+	<select id="checkId" parameterType="_int" resultType="_int">
+		select count(userid) from member where userid = #{userId}
+	</select>
+	
+	<select id="selectList" resultMap="resultMember">
+		select * from member
+	</select>
+	
+	<insert id="insertMember" parameterType="Member"> <!-- 무조건 int 반환이라 안 써도 됨 -->
+		insert into member values(#{userId}, #{userPwd}, #{userName}, #{gender}, #{age}, #{phone}, #{email}, #{hobby}, #{etc}, sysdate, default)
+	</insert>
+	
+	<delete id="deleteMember" parameterType="string">
+		delete from member where userid = #{userId} <!-- 이 userId는 마음대로 변수명 지어준 거  String 값으로 올 거. -->
+	</delete>
+	
+	<update id="updateMember" parameterType="Member">
+		update member set username = #{userName}, userpwd = #{userPwd}, gender = #{gender}, age = #{age}, phone = #{phone}, email = #{email}, hobby = #{hobby}, etc = #{etc}, lastmodified = sysdate where userid = #{userId}
+	</update>
+	
+	
+</mapper>
