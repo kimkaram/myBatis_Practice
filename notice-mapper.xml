@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="noticeMapper">
+
+	<resultMap id="resultNotice" type="Notice">
+		<id property="noticeNo" column="noticeno" />
+		<result property="noticeTitle" column="noticetitle" />
+		<result property="noticeDate" column="noticedate" />
+		<result property="noticeWriter" column="noticewriter" />
+		<result property="noticeContent" column="noticecontent" />
+		<result property="originalFilePath" column="original_file_path" />
+		<result property="renameFilePath" column="rename_file_path" />
+		
+	</resultMap>
+	
+	<select id="selectTop3List" parameterType="Notice" resultMap="resultNotice">
+		select * from (select rownum rnum, noticeno, noticetitle, noticewriter, noticedate from (select * from notice order by noticedate desc)) where rnum >= 1 and rnum <= 3
+	</select>
+
+	<select id="selectList" parameterType="Notice"  resultMap="resultNotice">
+		select * from notice order by noticeNo desc
+	</select>
+	
+	<select id="selectNotice" parameterType="int"  resultMap="resultNotice">
+		select * from notice where noticeno = ${noticeNo}
+	</select>
+	
+	<select id="selectSearchTitle" parameterType="String"  resultMap="resultNotice">
+		select * from notice where noticetitle like ${noticeTitle} order by noticeno desc
+	</select>
+
+	<select id="selectSearchDate" parameterType="notice.model.vo.SearchDate"  resultMap="resultNotice">
+		select * from notice where noticedate between #{begin} and #{end} order by noticeno desc
+	</select>
+	
+	<select id="selectSearchWriter" parameterType="String"  resultMap="resultNotice">
+		select * from notice where noticewriter like ${noticeWriter} order by noticeno desc
+	</select>
+	
+	<insert id="insertNotice" parameterType="Notice">
+		insert into notice values ((select max(noticeno) from notice) + 1, ${noticeTitle}, default, ${noticeWriter}, ${noticeContent}, ${originalFilePath}, ${renameFilePath})
+	</insert>
+	
+	<update id="updateNotice" parameterType="Notice">
+	
+			update notice set noticetitle = ${noticeTitle}, noticecontent = ${noticeContent}, original_filepath = ${originalFilePath}, rename_filepath = ${renameFilePath} where noticeno = ${noticeNo}
+		
+			update notice set noticetitle = ${noticeTitle}, noticecontent = ${noticeContent} where noticeno = ${noticeNo}
+		
+	</update>
+	
+	<delete id="deleteNotice" parameterType="int">
+		delete from notice where noticeno = ${noticeNo}
+	</delete>
+
+
+
+
+
+</mapper>
