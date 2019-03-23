@@ -19,57 +19,54 @@
 		<result property="boardDate" column="board_date" />
 	</resultMap>
 	
+	<!-- 비교연산자를 쿼리문에 그냥 사용하면 태그(element)의 꺽쇠(<,>, &)와 혼돈되는 문제가 발생할 수 있음. 
+		 이 문제를 방지하기 위해 xml 코드 중 xml parser에 의해 해석하지 말고, 문장 그대로 해석하라는 뜻으로 <![CDATA[쿼리문장]]> 사용함. -->
+	
 	<select id="selectTop3" parameterType="Board"  resultMap="resultBoard">
-		select * from (select rownum rnum, board_num, board_title, board_writer, board_content, board_original_filename, board_rename_filename, board_date, board_readcount, board_reply_lev, board_ref, board_reply_ref, board_reply_seq from (select * from board where board_reply_lev = 0 order by board_readcount desc)) where rnum >= 1 and rnum <= 3
+		<![CDATA[select * from (select rownum rnum, board_num, board_title, board_writer, board_content, board_original_filename, board_rename_filename, board_reply_lev, board_ref, board_reply_ref, board_reply_seq, board_readcount, board_date from (select * from board where board_reply_lev = 0 order by board_readcount desc)) where rnum >= 1 and rnum <= 3 ]]>
 	</select>
 
 	<select id="selectList" parameterType="Board" resultMap="resultBoard">
-		select * from (select rownum rnum, board_num, board_title, board_writer, board_content, board_original_filename, board_rename_filename, board_date, board_readcount, board_reply_lev, board_ref, board_reply_ref, board_reply_seq from (select * from board order by board_ref desc, board_reply_ref desc, board_reply_lev asc, board_reply_seq asc)) where rnum >= ${(currentPage - 1) * limit + 1} and rnum <= ${((currentPage - 1) * limit + 1) + limit - 1}
+		<![CDATA[select * from (select rownum rnum, board_num, board_title, board_writer, board_content, board_original_filename, board_rename_filename, board_date, board_readcount, board_reply_lev, board_ref, board_reply_ref, board_reply_seq from (select * from board order by board_ref desc, board_reply_ref desc, board_reply_lev asc, board_reply_seq asc)) where rnum >= ${((currentPage - 1) * limit + 1)} and rnum <= ${(((currentPage - 1) * limit + 1) + limit - 1)}]]>
 	</select>
 	
 	<select id="selectBoard" parameterType="int" resultMap="resultBoard">
-		select * from board where board_num = ${boardNum}
+		<![CDATA[select * from board where board_num = ${boardNum}]]>
 	</select>
 	
 	<select id="getListCount" resultType="int">
-		select count(*) from board
+		<![CDATA[select count(*) from board]]>
 	</select>
 	
-	<select id="addReadCount" parameterType="int">
-		update board set board_readcount = board_readcount + 1 where board_num = ${boardNum}
+	<select id="addReadCount" parameterType="Board">
+		<![CDATA[update board set board_readcount = board_readcount + 1 where board_num = ${boardNum}]]>
 	</select>
 	
 	<insert id="insertBoard" parameterType="Board" >
-		insert into board values ((select max(board_num) + 1 from board), ${boardWriter}, ${boardTitle}, ${boardContent}, ${boardOriginalFileName}, ${boardRenameFileName}, (select max(board_num) + 1 from board), 0, 0, 0, default, default)
+		<![CDATA[insert into board values ((select max(board_num) + 1 from board), ${boardWriter}, ${boardTitle}, ${boardContent}, ${boardOriginalFileName}, ${boardRenameFileName}, (select max(board_num) + 1 from board), 0, 0, 0, default, default)]]>
 	</insert>
 	
-	<insert id="insertReply" parameterType="Board" >
-		
-		insert into board values ((select max(board_num) + 1 from board), ${boardWriter}, ${boardTitle}, ${boardContent}, NULL, NULL, ${boardRef}, (select max(board_num) + 1 from board), 1, ${boardReplySeq}, 0, default)
-		
-		
-		insert into board values ((select max(board_num) + 1 from board), ${boardWriter}, ${boardTitle}, ${boardContent}, NULL, NULL, ${boardRef}, ${boardReplyRef}, 2, ${boardReplySeq}, 0, default)
-		
-		
+	<insert id="insertReply1" parameterType="Board" >
+		<![CDATA[insert into board values ((select max(board_num) + 1 from board), ${boardWriter}, ${boardTitle}, ${boardContent}, NULL, NULL, ${boardRef}, (select max(board_num) + 1 from board), 1, ${boardReplySeq}, 0, default)]]>
+	</insert>
+	
+	<insert id="insertReply2" parameterType="Board" >
+		<![CDATA[insert into board values ((select max(board_num) + 1 from board), ${boardWriter}, ${boardTitle}, ${boardContent}, NULL, NULL, ${boardRef}, ${boardReplyRef}, 2, ${boardReplySeq}, 0, default)]]>
 	</insert>
 	
 	<update id="updateReplySeq" parameterType="Board" >
-		update board set board_reply_seq = board_reply_seq + 1 where board_ref = ${boardRef} and board_reply_lev = ${boardReplyLev} and board_reply_ref = ${boardReplyRef}
+		<![CDATA[update board set board_reply_seq = board_reply_seq + 1 where board_ref = ${boardRef} and board_reply_lev = ${boardReplyLev} and board_reply_ref = ${boardReplyRef}]]>
 	</update>
 	
 	<update id="updateReply" parameterType="Board" >
-		update board set board_title = ${boardTitle}, board_content = ${boardContent} where board_num = ${boardNum}
+		<![CDATA[update board set board_title = ${boardTitle}, board_content = ${boardContent} where board_num = ${boardNum}]]>
 	</update>
 	
 	<update id="updateBoard" parameterType="Board">
-		update board set board_title = ${boardTitle}, board_content = ${boardContent}, BOARD_ORIGINAL_FILENAME = ${boardOriginalFileName}, BOARD_RENAME_FILENAME = ${boardRenameFileName} where board_num = ${boardNum}
+		<![CDATA[update board set board_title = ${boardTitle}, board_content = ${boardContent}, BOARD_ORIGINAL_FILENAME = ${boardOriginalFileName}, BOARD_RENAME_FILENAME = ${boardRenameFileName} where board_num = ${boardNum}]]>
 	</update>
 	
 	<delete id="deleteBoard" parameterType="String">
-		delete from board where board_num = ${boardNum}
+		<![CDATA[delete from board where board_num = ${boardNum}]]>
 	</delete>
-
-
-
-
 </mapper>
